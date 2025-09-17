@@ -1,4 +1,19 @@
-.env
-__pycache__/\n*.pyc\n.venv/\n
-.env
-__pycache__/\n*.pyc\n.venv/\n
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Build / dump / artefatti
+gpt_share/
+*.tar.gz
+*.zip
+*.bak
+*.save
+*.backup.*
+openapi.json
+
+# Windows alternate data streams “Zone.Identifier”
+*:[Zz]one.Identifier
+
+# Varie
+.DS_Store
