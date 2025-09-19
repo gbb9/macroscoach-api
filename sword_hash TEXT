@@ -1,0 +1,19 @@
+                                        Table "public.users"
+   Column   |            Type             | Collation | Nullable |              Default              
+------------+-----------------------------+-----------+----------+-----------------------------------
+ id         | integer                     |           | not null | nextval('users_id_seq'::regclass)
+ email      | character varying           |           | not null | 
+ created_at | timestamp without time zone |           |          | 
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "ix_users_email" UNIQUE, btree (email)
+    "ix_users_id" btree (id)
+Referenced by:
+    TABLE "meals" CONSTRAINT "meals_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "recent_foods" CONSTRAINT "recent_foods_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "user_day_modes" CONSTRAINT "user_day_modes_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "user_plans" CONSTRAINT "user_plans_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "weight_log" CONSTRAINT "weight_log_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "weight_logs" CONSTRAINT "weight_logs_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "workouts" CONSTRAINT "workouts_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+
