@@ -99,6 +99,18 @@ class FoodSearchOut(BaseModel):
     per_100g: Dict[str, float]
     grams_per_unit: float | None = None
 
+
+class FoodPer100In(BaseModel):
+    kcal: float | None = None
+    pro: float | None = None
+    carb: float | None = None
+    fat: float | None = None
+
+
+class FoodConfirmIn(BaseModel):
+    name: str
+    per_100g: FoodPer100In = Field(default_factory=FoodPer100In)
+
 # -------------------------
 # Auth
 # -------------------------

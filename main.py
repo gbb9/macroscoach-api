@@ -29,7 +29,7 @@ from models import (
 )
 from schemas import (
     MealIn, WeightIn, WorkoutIn, PlanPayload, MealUpdate,
-    SchedulePayload, FoodSearchOut,
+    SchedulePayload, FoodSearchOut, FoodConfirmIn,
     RegisterIn, LoginIn, TokenOut, MeOut
 )
 
@@ -336,6 +336,50 @@ def foods_recent_by_slot(
         })
     return out
 
+@app.put("/foods/barcode/{code}")
+def upsert_food_by_barcode(
+    code: str,
+    payload: FoodConfirmIn,
+    db: Session = Depends(get_db),
+    current: User = Depends(get_current_user),
+):
+    name = (payload.name or '').strip()
+    if not name:
+        raise HTTPException(status_code=400, detail='Nome alimento obbligatorio')
+    per100 = payload.per_100g
+    try:
+        food = db.query(Food).filter_by(barcode=code).first()
+        if not food:
+            food = Food(barcode=code)
+            db.add(food)
+            db.flush()
+        food.name = name
+        food.per_100g_kcal = per100.kcal or 0
+        food.per_100g_pro = per100.pro or 0
+        food.per_100g_carb = per100.carb or 0
+        food.per_100g_fat = per100.fat or 0
+        rf = db.query(RecentFood).filter_by(user_id=current.id, food_id=food.id).first()
+        if rf:
+            rf.last_used = datetime.utcnow()
+        else:
+            db.add(RecentFood(user_id=current.id, food_id=food.id))
+        db.commit()
+        return {
+            'food_id': food.id,
+            'name': food.name,
+            'barcode': food.barcode,
+            'per_100g': {
+                'kcal': food.per_100g_kcal,
+                'pro': food.per_100g_pro,
+                'carb': food.per_100g_carb,
+                'fat': food.per_100g_fat,
+            },
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f'Errore salvataggio alimento: {e}')
 # ---------------- Meals ----------------
 @app.post("/meals")
 def create_meal(
@@ -943,3 +987,5 @@ def debug_pingdb(db: Session = Depends(get_db)):
         "ok": True,
         "counts": {"users": users, "meals": meals, "workouts": workouts, "weights": weights, "plans": plans},
     }
+
+
